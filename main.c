@@ -262,7 +262,7 @@ motion_notify(XEvent *e)
 }
 
 int
-main(int argc, char *argv[])
+main()
 {
     config = load_config("config.conf");
 
