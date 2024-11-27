@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "config.h"
 #include "util.h"
@@ -35,15 +36,21 @@ write_default_config(FILE *f)
 }
 
 Config
-load_config(const char *fileName)
+load_config(const char *filename)
 {
-    FILE *f = fopen(fileName, "r");
-    if (f == NULL) {
-        f = fopen(fileName, "wr");
+    // NOTE: reading a file can fail for many reasons. 
+    // we should not be trying to create a new one in most of em
+	 if (access(filename, F_OK | R_OK)) {
+        printf("Config file %s does not exist, creating default\n", filename);
+        FILE *f = fopen(filename, "wr");
         if (f == NULL)
-            die("Unable to open config file %s\n", fileName);
+            die("Unable to open config file %s\n", filename);
         write_default_config(f);
     }
+
+    FILE *f = fopen(filename, "r");
+    if (f == NULL)
+        die("Unable to open config file %s\n", filename);
 
     char *line = NULL;
     size_t len = 0;
