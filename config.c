@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "config.h"
 #include "util.h"
@@ -35,15 +36,21 @@ write_default_config(FILE *f)
 }
 
 Config
-load_config(const char *fileName)
+load_config(const char *filename)
 {
-    FILE *f = fopen(fileName, "r");
-    if (f == NULL) {
-        f = fopen(fileName, "wr");
+    // NOTE: reading a file can fail for many reasons. 
+    // we should not be trying to create a new one in most of em
+	 if (access(filename, F_OK | R_OK)) {
+        printf("Config file %s does not exist, creating default\n", filename);
+        FILE *f = fopen(filename, "wr");
         if (f == NULL)
-            die("Unable to open config file %s\n", fileName);
+            die("Unable to open config file %s\n", filename);
         write_default_config(f);
     }
+
+    FILE *f = fopen(filename, "r");
+    if (f == NULL)
+        die("Unable to open config file %s\n", filename);
 
     char *line = NULL;
     size_t len = 0;
@@ -60,36 +67,38 @@ load_config(const char *fileName)
             if (c == NULL)
                 die(NULL, "Expected value for argument %s\n", arg);
 
-            if (!strcmp(arg, "min_scale")) {
+            if (!strcmp(arg, "min_scale"))
                 conf.min_scale = strtof(c, NULL);
-            } else if (!strcmp(arg, "max_scale")) {
+            else if (!strcmp(arg, "max_scale"))
                 conf.max_scale = strtof(c, NULL);
-            } else if (!strcmp(arg, "scroll_speed")) {
+            else if (!strcmp(arg, "scroll_speed"))
                 conf.scroll_speed = strtof(c, NULL);
-            } else if (!strcmp(arg, "drag_friction")) {
+            else if (!strcmp(arg, "drag_friction"))
                 conf.drag_friction = strtof(c, NULL);
-            } else if (!strcmp(arg, "scale_friction")) {
+            else if (!strcmp(arg, "scale_friction"))
                 conf.scale_friction = strtof(c, NULL);
-            } else if (!strcmp(arg, "key_move_speed")) {
+            else if (!strcmp(arg, "key_move_speed"))
                 conf.key_move_speed = strtof(c, NULL);
-            } else if (!strcmp(arg, "windowed")) {
+            else if (!strcmp(arg, "windowed"))
                 switch (c[0]) {
                 case 'f':
                 case 'F':
+                case 'n':
+                case 'N':
                 case '0':
                     conf.windowed = false;
                     break;
                 case 't':
                 case 'T':
+                case 'y':
+                case 'Y':
                 case '1':
                     conf.windowed = true;
                     break;
                 default:
                     break;
                 }
-            } else {
-                die("Unexpected configuration key '%s'\n", arg);
-            }
+            else die("Unexpected configuration key '%s'\n", arg);
 
             /* get next arg */
             c = strtok(NULL, " \t=");

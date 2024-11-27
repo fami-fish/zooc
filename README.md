@@ -33,5 +33,5 @@ Values can be of float or boolean type. Floats are parsed with `strtof`, which
 allows follows the format described [here](https://cplusplus.com/reference/cstdlib/strtof/).
 Boolean types (case insensitive) are parsed as such:
 
-`t`,`true`,`1`
-`f`,`false`,`0`
+`t`,`true`,`True`,`1`,`y`,`yes`,`Y`,`Yes`
+`f`,`false`,`False`,`0`,`n`,`no`,`N`,`No`
