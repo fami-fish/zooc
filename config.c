@@ -76,11 +76,15 @@ load_config(const char *fileName)
                 switch (c[0]) {
                 case 'f':
                 case 'F':
+                case 'n':
+                case 'N':
                 case '0':
                     conf.windowed = false;
                     break;
                 case 't':
                 case 'T':
+                case 'y':
+                case 'Y':
                 case '1':
                     conf.windowed = true;
                     break;
