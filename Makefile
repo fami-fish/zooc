@@ -1,26 +1,30 @@
-IDIR =.
 CC=gcc
-CFLAGS=-I$(IDIR) -g -Wall -Wextra -pedantic -Wmissing-declarations
+CFLAGS=-Wall -Wextra -pedantic -O3
+LDFLAGS=-lX11 -lGL -lGLEW -lm -lXrandr
 
-ODIR=.
-LDIR =../lib
+SRC=$(wildcard src/*.c)
+INCLUDES=-I.
+OBJ=$(SRC:.c=.o)
 
-LIBS=-lX11 -lGL -lGLEW -lm -lXrandr
+CONFIG_FILES=$(wildcard *.glsl) config.conf
 
-_DEPS = util.h config.h navigation.h
-DEPS  = $(patsubst %,$(IDIR)/%,$(_DEPS))
+EXEC=zooc
 
-_OBJ = main.o util.o config.o navigation.o
-OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
+all: $(EXEC)
 
+$(EXEC): $(OBJ)
+	$(CC) $(OBJ) -o $(EXEC) $(LDFLAGS)
 
-$(ODIR)/%.o: %.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+%.o: %.c
+	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
-zooc: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS) $(LIBS)
+install:
+	install -Dm755 $(EXEC) $(DESTDIR)/usr/bin/$(EXEC)
+	install -d $(DESTDIR)/etc/$(EXEC)
 
-.PHONY: clean
+	for file in $(CONFIG_FILES); do \
+		install -Dm644 $$file $(DESTDIR)/etc/$(EXEC)/$$file; \
+	done
 
 clean:
-	rm -f $(ODIR)/*.o *~ core $(INCDIR)/*~ 
+	rm -f $(OBJ) $(EXEC)

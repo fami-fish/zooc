@@ -179,7 +179,7 @@ keypress(XEvent *e)
         camera.velocity = camera.position = (Vec2f) {0, 0};
         break;
     case XK_r:
-        config = load_config("config.conf");
+        config = load_config();
         break;
     case XK_f:
         flashlight.is_enabled = !flashlight.is_enabled;
@@ -263,11 +263,11 @@ motion_notify(XEvent *e)
 int
 main(int argc, char *argv[])
 {
-    config = load_config("config.conf");
+    config = load_config();
 
     dpy = XOpenDisplay(NULL);
     if (dpy == NULL) {
-        die("Cannot connect to the X display server\n");
+        die("Cannot connect to the X display server!\n");
     }
     check_glx_version(dpy);
 
@@ -282,7 +282,7 @@ main(int argc, char *argv[])
 
     XVisualInfo *vi = glXChooseVisual(dpy, screen, attrs);
     if (vi == NULL)
-        die("No appropriate visual found\n");
+        die("No appropriate visual found!\n");
 
     XSetWindowAttributes swa;
     memset(&swa,0,sizeof(XSetWindowAttributes));
@@ -336,18 +336,12 @@ main(int argc, char *argv[])
 
     XGetInputFocus(dpy, &origin_win, &revert_to_parent);
 
-    // TODO: make shader source a configurable dir
-    // GLchar shaderDir[] = "./shaders/";
-
     GLuint vertex_shader;
-    GLchar vertex_src[] = "./shaders/vertex.glsl";
-
     GLuint fragment_shader;
-    GLchar fragment_src[] = "./shaders/fragment.glsl";
 
     /* Load and compile shaders */
-    vertex_shader   = load_shader(vertex_src, GL_VERTEX_SHADER);
-    fragment_shader = load_shader(fragment_src, GL_FRAGMENT_SHADER);
+    vertex_shader   = load_shader(config.vertex_shader_file, GL_VERTEX_SHADER);
+    fragment_shader = load_shader(config.fragment_shader_file, GL_FRAGMENT_SHADER);
 
     /* Link shaders and create a program */
     GLuint shader_program = glCreateProgram();

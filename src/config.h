@@ -12,9 +12,12 @@ typedef struct {
     float scroll_speed;
     float key_move_speed;
     bool windowed;
+
+    char *fragment_shader_file;
+    char *vertex_shader_file;
 } Config;
 
-Config load_config(const char*);
+Config load_config();
 void write_default_config(FILE*);
 
 #endif
