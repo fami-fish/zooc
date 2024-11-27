@@ -21,11 +21,10 @@ update_flashlight(Flashlight *fl, float dt)
     }
 
     /* Smoothly interpolate between on/off */
-    if (fl->is_enabled) {
+    if (fl->is_enabled)
         fl->shadow = MIN(fl->shadow + SHADOW_ACCEL * dt , MAX_SHADOW);
-    } else {
+    else
         fl->shadow = MAX(fl->shadow - SHADOW_ACCEL * dt , 0.0f);
-    }
 }
 
 void
@@ -67,7 +66,7 @@ update_camera(Camera *cam, Config *config, Mouse *mouse, Vec2f window_size)
         cam->delta_scale -= cam->delta_scale * cam->dt * config->scale_friction;
     }
 
-    if (!mouse->dragging && (LEN(cam->velocity) > VELOCITY_THRESHOLD)) {
+    if (!mouse->dragging && LEN(cam->velocity) > VELOCITY_THRESHOLD) {
         cam->position = ADD(cam->position, MULS(cam->velocity, cam->dt));
         cam->velocity = SUB(cam->velocity, MULS(cam->velocity, cam->dt * config->drag_friction));
     }

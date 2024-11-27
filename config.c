@@ -67,19 +67,19 @@ load_config(const char *filename)
             if (c == NULL)
                 die(NULL, "Expected value for argument %s\n", arg);
 
-            if (!strcmp(arg, "min_scale")) {
+            if (!strcmp(arg, "min_scale"))
                 conf.min_scale = strtof(c, NULL);
-            } else if (!strcmp(arg, "max_scale")) {
+            else if (!strcmp(arg, "max_scale"))
                 conf.max_scale = strtof(c, NULL);
-            } else if (!strcmp(arg, "scroll_speed")) {
+            else if (!strcmp(arg, "scroll_speed"))
                 conf.scroll_speed = strtof(c, NULL);
-            } else if (!strcmp(arg, "drag_friction")) {
+            else if (!strcmp(arg, "drag_friction"))
                 conf.drag_friction = strtof(c, NULL);
-            } else if (!strcmp(arg, "scale_friction")) {
+            else if (!strcmp(arg, "scale_friction"))
                 conf.scale_friction = strtof(c, NULL);
-            } else if (!strcmp(arg, "key_move_speed")) {
+            else if (!strcmp(arg, "key_move_speed"))
                 conf.key_move_speed = strtof(c, NULL);
-            } else if (!strcmp(arg, "windowed")) {
+            else if (!strcmp(arg, "windowed"))
                 switch (c[0]) {
                 case 'f':
                 case 'F':
@@ -98,9 +98,7 @@ load_config(const char *filename)
                 default:
                     break;
                 }
-            } else {
-                die("Unexpected configuration key '%s'\n", arg);
-            }
+            else die("Unexpected configuration key '%s'\n", arg);
 
             /* get next arg */
             c = strtok(NULL, " \t=");
