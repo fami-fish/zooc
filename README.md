@@ -15,6 +15,19 @@ A C rewrite of tsoding's boomer with some added features
 | Scroll wheel or <kbd>=</kbd>/<kbd>-</kbd> | Zoom in/out.                                                  |
 | <kbd>Ctrl</kbd> + Scroll wheel            | Change the radius of the flaslight.                           |
 
+## Packages
+| Repository | Package |
+|------------|---------|
+| AUR        | [zooc-git](https://aur.archlinux.org/packages/zooc-git/) |
+
+## Building
+```sh
+# deps: glibc, glew, mesa, libx11, libxrandr, libxext
+make zooc clean
+# and optionally
+make install
+```
+
 ## Configuration
 The configuration file is located at `$XDG_CONFIG_HOME/zooc/config.conf`. It
 follows this format:
@@ -34,10 +47,3 @@ allows follows the format described [here](https://cplusplus.com/reference/cstdl
 Boolean types (case insensitive) are parsed as such:
 
 `t`,`true`,`1` / `f`,`false`,`0`
-
-## Building
-deps: `glew`
-
-```sh
-make zooc clean
-```
