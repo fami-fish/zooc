@@ -25,7 +25,7 @@
 #define MIN_GLX_MINOR   3
 
 GLuint load_shader(const char *, GLenum);
-XImage* get_screenshot();
+XImage* get_screenshot(void);
 void button_press(XEvent *);
 void button_release(XEvent *);
 void check_glx_version(Display *);
@@ -101,7 +101,7 @@ check_glx_version(Display *dpy)
 
 // TODO: implement support for the MIT shared memory extension. (MIT-SHM)
 XImage*
-get_screenshot()
+get_screenshot(void)
 {
     return XGetImage(
         dpy, w,

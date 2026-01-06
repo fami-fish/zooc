@@ -17,6 +17,6 @@ typedef struct {
     char *vertex_shader_file;
 } Config;
 
-Config load_config();
+Config load_config(void);
 
 #endif

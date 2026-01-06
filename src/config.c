@@ -3,7 +3,6 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/stat.h>
-#include <sys/sendfile.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,12 +14,12 @@
 
 #define MAX_PATH_SIZE 4096
 
-Config get_default_config();
+Config get_default_config(void);
 void parse_config(Config *, FILE *);
 int parse_bool(char *arg);
 
 Config
-get_default_config()
+get_default_config(void)
 {
     return (Config){
         .min_scale = 0.1,
@@ -38,7 +37,7 @@ get_default_config()
 }
 
 Config
-load_config()
+load_config(void)
 {
     const char *xdg_config_home = getenv("XDG_CONFIG_HOME");
     if (xdg_config_home == NULL) {
