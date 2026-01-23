@@ -29,6 +29,7 @@ get_default_config(void)
         .scroll_speed = 1.5,
         .key_move_speed = 400.0,
         .windowed = false,
+        .screenshot_path = getenv("HOME"),
 
         /* Set in code */
         .vertex_shader_file = NULL,
@@ -144,6 +145,9 @@ parse_config(Config *conf, FILE *f)
                 conf->scale_friction = strtof(c, NULL);
             } else if (!strcmp(arg, "key_move_speed")) {
                 conf->key_move_speed = strtof(c, NULL);
+            } else if (!strcmp(arg, "screenshot_path")) {
+                c[ strlen(c) - 1 ] = '\0';
+                conf->screenshot_path = c;
             } else if (!strcmp(arg, "windowed")) {
                 if(parse_bool(c) != -1) {
                     conf->windowed = (bool)parse_bool(c);

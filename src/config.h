@@ -11,6 +11,7 @@ typedef struct {
     float scale_friction;
     float scroll_speed;
     float key_move_speed;
+    char *screenshot_path;
     bool windowed;
 
     char *fragment_shader_file;

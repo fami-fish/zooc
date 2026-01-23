@@ -11,7 +11,7 @@ When ran, zooc zooms into the frame buffer and allows for interactivity with it.
 The default keybindings are shown below, however they can be edited through the configuration file.
 
 .TP
-\fB0\fR
+\fB0 or g\fR
 Reset the application state (position, scale, velocity, etc).
 .TP
 \fBq or ESC\fR
@@ -29,11 +29,17 @@ Move the image around.
 \fBhjkl + arrow keys\fR
 Move the image around with the keyboard.
 .TP
-\fBScroll wheel or =/-\fR
+\fBScroll wheel or =/- or K/J\fR
 Zoom in/out.
 .TP
 \fBCtrl + Scroll wheel or =/-\fR
 Change the radius of the flaslight.
+.TP
+\fBH/L\fR
+Change the radius of the flaslight with the keyboard.
+.TP
+\fBs\fR
+Save the screenshot. The default location is $HOME(or use screenshot_path in the configuration file).
 .PP
 The configuration file is located at \fI$XDG_CONFIG_HOME/zooc/config.conf\fR. It
 follows this format:

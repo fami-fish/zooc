@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <time.h>
+#include <assert.h>
 
 #include <X11/X.h>
 #include <X11/extensions/Xrandr.h>
@@ -20,16 +22,15 @@
 #include "navigation.h"
 #include "util.h"
 #include "vec.h"
+#include "screenshot.h"
 
 #define MIN_GLX_MAJOR   1
 #define MIN_GLX_MINOR   3
 
 GLuint load_shader(const char *, GLenum);
-XImage* get_screenshot(void);
 void button_press(XEvent *);
 void button_release(XEvent *);
 void check_glx_version(Display *);
-void destroy_screenshot(XImage*);
 void draw_image(Camera *, XImage *, GLuint, GLuint, Vec2f, Mouse *, Flashlight *);
 void keypress(XEvent *);
 void motion_notify(XEvent *);
@@ -53,6 +54,8 @@ static void (*handler[LASTEvent]) (XEvent *) = {
     [ButtonPress] = button_press,
     [ButtonRelease] = button_release,
 };
+
+XImage *screenshot = {0};
 
 GLuint
 load_shader(const char *name, GLenum type)
@@ -97,25 +100,6 @@ check_glx_version(Display *dpy)
         || (glx_minor == MIN_GLX_MAJOR && glx_minor < MIN_GLX_MINOR)
         || (MIN_GLX_MAJOR < 1))
         die("Invalid GLX version %d.%d. Requires GLX >= %d.%d", glx_major, glx_minor, MIN_GLX_MAJOR, MIN_GLX_MINOR);
-}
-
-// TODO: implement support for the MIT shared memory extension. (MIT-SHM)
-XImage*
-get_screenshot(void)
-{
-    return XGetImage(
-        dpy, w,
-        0, 0,
-        wa.width,
-        wa.height,
-        AllPlanes,
-        ZPixmap);
-}
-
-void
-destroy_screenshot(XImage *screenshot)
-{
-    XDestroyImage(screenshot);
 }
 
 void
@@ -165,15 +149,18 @@ keypress(XEvent *e)
         camera.velocity.x += config.key_move_speed;
         break;
     case XK_minus:
+    case XK_J:
         scroll_down(1, ev->state & ControlMask);
         break;
     case XK_equal:
+    case XK_K:
         scroll_up(1, ev->state & ControlMask);
         break;
     case XK_q:
     case XK_Escape:
         running = false;
         break;
+    case XK_g:
     case XK_0:
         camera.scale = 1.0f;
         camera.delta_scale = 0.0f;
@@ -184,6 +171,35 @@ keypress(XEvent *e)
         break;
     case XK_f:
         flashlight.is_enabled = !flashlight.is_enabled;
+        break;
+    case XK_H:
+        scroll_down(1, true);
+        break;
+    case XK_L:
+        scroll_up(1, true);
+        break;
+    case XK_s:
+        char *file_path = NULL;
+        char timestamp[20];
+        strftime(timestamp, sizeof(timestamp), "%Y%m%d_%H%M%S", localtime(&(time_t){time(NULL)}));
+
+        if (strcmp(config.screenshot_path, getenv("HOME")) != 0) {
+            file_path = malloc(strlen(getenv("HOME")) + strlen("/") +
+                               strlen(config.screenshot_path) +
+                               strlen("/zooc_screenshot_") +
+                               strlen(timestamp) + strlen(".ppm") + 1);
+
+            sprintf(file_path, "%s/%s/zooc_screenshot_%s.ppm", getenv("HOME"), config.screenshot_path, timestamp);
+        } else {
+            file_path = malloc(strlen("/") +
+                               strlen(config.screenshot_path) +
+                               strlen("/zooc_screenshot_") +
+                               strlen(timestamp) + strlen(".ppm") + 1);
+
+            sprintf(file_path, "%s/zooc_screenshot_%s.ppm", config.screenshot_path, timestamp);
+        }
+        save_to_ppm(screenshot, file_path);
+        free(file_path);
         break;
     }
 }
@@ -367,7 +383,7 @@ main(int argc, char *argv[])
         die("Error whilst linking program:\n%s", info_log);
     }
 
-    XImage *screenshot = get_screenshot();
+    screenshot = new_screenshot(dpy, DefaultRootWindow(dpy)).image;
     Vec2f screenshot_size = (Vec2f) {screenshot->width, screenshot->height};
 
     int sw = screenshot_size.x;
@@ -455,7 +471,7 @@ main(int argc, char *argv[])
     };
 
     camera = (Camera) {
-        .position = ZERO,
+        .position = ZERO, // TODO: implement getCursorPosition
         .velocity = ZERO,
         .scale_pivot = ZERO,
         .scale = 1.0f,

@@ -16,7 +16,7 @@
 
 #define EQ(v, u)    ((v).x == (u).x && (v).y == (u).y)
 #define LEN(v)      sqrtf((v).x * (v).x + (v).y * (v).y)
-#define NORM(v)     LEN(V) == 0.0f ? ZERO : (DIV(v, LEN(v)))
+#define NORM(v)     LEN(v) == 0.0f ? ZERO : (DIV(v, LEN(v)))
 
 /* Scalar operations */
 #define MULS(v, s)  (Vec2f) {(v).x * (s), (v).y * (s)}
