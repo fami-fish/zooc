@@ -42,6 +42,8 @@ static XWindowAttributes wa;
 static Window w;
 static bool running = true;
 
+static GLuint shader_program;
+
 static Flashlight flashlight;
 static Camera camera;
 static Mouse mouse;
@@ -86,6 +88,36 @@ load_shader(const char *name, GLenum type)
     }
 
     return shader;
+}
+
+void
+update_program(char *vertex_shader_filename, char *fragment_shader_filename)
+{
+    GLuint vertex_shader;
+    GLuint fragment_shader;
+    
+    vertex_shader   = load_shader(vertex_shader_filename, GL_VERTEX_SHADER);
+    fragment_shader = load_shader(fragment_shader_filename, GL_FRAGMENT_SHADER);
+    
+    GLuint new_program = glCreateProgram();
+    glAttachShader(new_program, vertex_shader);
+    glAttachShader(new_program, fragment_shader);
+    glLinkProgram(new_program);
+    
+    int link_success;
+    glGetProgramiv(new_program, GL_LINK_STATUS, &link_success);
+    
+    if(link_success) {
+        glDeleteProgram(shader_program);
+        shader_program = new_program;
+    } else {
+        GLchar info_log[512];
+        glGetProgramInfoLog(new_program, 512, NULL, info_log);
+        fprintf(stderr, "Error whilst linking program:\n%s", info_log);
+    }
+    
+    glDeleteShader(vertex_shader);
+    glDeleteShader(fragment_shader);
 }
 
 void
@@ -181,6 +213,10 @@ keypress(XEvent *e)
         break;
     case XK_r:
         config = load_config();
+        
+        /* (Re)Load and compile shaders */
+        update_program(config.vertex_shader_file, config.fragment_shader_file);
+        
         break;
     case XK_f:
         flashlight.is_enabled = !flashlight.is_enabled;
@@ -344,29 +380,10 @@ main(int argc, char *argv[])
     Window origin_win;
 
     XGetInputFocus(dpy, &origin_win, &revert_to_parent);
-
-    GLuint vertex_shader;
-    GLuint fragment_shader;
-
+    
     /* Load and compile shaders */
-    vertex_shader   = load_shader(config.vertex_shader_file, GL_VERTEX_SHADER);
-    fragment_shader = load_shader(config.fragment_shader_file, GL_FRAGMENT_SHADER);
-
-    /* Link shaders and create a program */
-    GLuint shader_program = glCreateProgram();
-    glAttachShader(shader_program, vertex_shader);
-    glAttachShader(shader_program, fragment_shader);
-    glLinkProgram(shader_program);
-
-    int link_success;
-    glGetProgramiv(shader_program, GL_LINK_STATUS, &link_success);
-
-    if(!link_success) {
-        GLchar info_log[512];
-        glGetProgramInfoLog(shader_program, 512, NULL, info_log);
-        die("Error whilst linking program:\n%s", info_log);
-    }
-
+    update_program(config.vertex_shader_file, config.fragment_shader_file);
+    
     XImage *screenshot = get_screenshot();
     Vec2f screenshot_size = (Vec2f) {screenshot->width, screenshot->height};
 
@@ -509,10 +526,7 @@ main(int argc, char *argv[])
     }
 
     XSetInputFocus(dpy, origin_win, RevertToParent, CurrentTime);
-
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
-
+    
     glXMakeCurrent(dpy, None, NULL);
     glXDestroyContext(dpy, glc);
 
